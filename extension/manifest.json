@@ -1,11 +1,15 @@
 {
   "manifest_version": 3,
-  
+
   "name": "Skim",
   "version": "0.1.0",
   "description": "Goal-based reading assistant grounded in the current page only",
   "permissions": ["storage", "activeTab", "sidePanel", "scripting", "tabs"],
-  "host_permissions": ["https://api.openai.com/*", "<all_urls>"],
+  "host_permissions": [
+    "https://api.openai.com/*",
+    "https://generativelanguage.googleapis.com/*",
+    "<all_urls>"
+  ],
   "background": {
     "service_worker": "dist/background.js",
     "type": "module"

@@ -1,12 +1,12 @@
-const EMBEDDING_MODEL = "text-embedding-3-small";
-const CHAT_MODEL = "gpt-4o-mini";
+import { DEFAULT_OPENAI_CHAT_MODEL, DEFAULT_OPENAI_EMBEDDING_MODEL } from "./ai-config.js";
 
 /**
  * @param {string} apiKey
  * @param {string[]} inputs
+ * @param {string} [embeddingModel]
  * @returns {Promise<number[][]>}
  */
-export async function embedTexts(apiKey, inputs) {
+export async function embedTexts(apiKey, inputs, embeddingModel = DEFAULT_OPENAI_EMBEDDING_MODEL) {
   if (inputs.length === 0) return [];
   const res = await fetch("https://api.openai.com/v1/embeddings", {
     method: "POST",
@@ -15,7 +15,7 @@ export async function embedTexts(apiKey, inputs) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: EMBEDDING_MODEL,
+      model: embeddingModel,
       input: inputs,
     }),
   });
@@ -32,17 +32,19 @@ export async function embedTexts(apiKey, inputs) {
 /**
  * @param {string} apiKey
  * @param {string} text
+ * @param {string} [embeddingModel]
  */
-export async function embedQuery(apiKey, text) {
-  const [v] = await embedTexts(apiKey, [text]);
+export async function embedQuery(apiKey, text, embeddingModel) {
+  const [v] = await embedTexts(apiKey, [text], embeddingModel);
   return v;
 }
 
 /**
  * @param {string} apiKey
+ * @param {string} chatModel
  * @param {object} body
  */
-export async function chatCompletionJson(apiKey, body) {
+export async function chatCompletionJson(apiKey, chatModel, body) {
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -50,10 +52,10 @@ export async function chatCompletionJson(apiKey, body) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: CHAT_MODEL,
       temperature: 0.2,
       response_format: { type: "json_object" },
       ...body,
+      model: chatModel,
     }),
   });
   if (!res.ok) {
@@ -63,4 +65,4 @@ export async function chatCompletionJson(apiKey, body) {
   return res.json();
 }
 
-export { EMBEDDING_MODEL, CHAT_MODEL };
+export { DEFAULT_OPENAI_EMBEDDING_MODEL as EMBEDDING_MODEL_DEFAULT, DEFAULT_OPENAI_CHAT_MODEL as CHAT_MODEL_DEFAULT };

@@ -1,5 +1,10 @@
 import { chunkText } from "./lib/chunk.js";
-import { embedTexts, embedQuery, chatCompletionJson } from "./lib/openai.js";
+import { getAiConfig, missingApiKeyMessage } from "./lib/ai-config.js";
+import {
+  embedTextsForConfig,
+  embedQueryForConfig,
+  chatCompletionJsonForConfig,
+} from "./lib/ai-dispatch.js";
 import { topKByCosine } from "./lib/similarity.js";
 import {
   SYSTEM_GROUNDED,
@@ -47,12 +52,6 @@ function safeParseJson(raw) {
 let session = null;
 
 /** @typedef {{ role: 'user' | 'assistant'; content: string }} ChatTurn */
-
-async function getApiKey() {
-  const { openaiApiKey } = await chrome.storage.local.get("openaiApiKey");
-  const k = typeof openaiApiKey === "string" ? openaiApiKey.trim() : "";
-  return k;
-}
 
 function wordCount(text) {
   return text.split(/\s+/).filter(Boolean).length;
@@ -126,18 +125,18 @@ async function extractFromPdfUrl(url) {
 }
 
 /**
- * @param {string} apiKey
+ * @param {import("./lib/ai-config.js").ResolvedAiConfig} config
  * @param {{ id: string; text: string }[]} chunks
  * @returns {Promise<number[][]>}
  */
-async function embedAllChunks(apiKey, chunks) {
+async function embedAllChunks(config, chunks) {
   const texts = chunks.map((c) => c.text);
   const batchSize = 64;
   /** @type {number[][]} */
   const all = [];
   for (let i = 0; i < texts.length; i += batchSize) {
     const batch = texts.slice(i, i + batchSize);
-    const vectors = await embedTexts(apiKey, batch);
+    const vectors = await embedTextsForConfig(config, batch);
     all.push(...vectors);
   }
   return all;
@@ -165,9 +164,9 @@ function trimToCharBudget(ranked) {
  * @param {SessionState} sess
  */
 async function answerFromSession(question, history, sess) {
-  const apiKey = await getApiKey();
-  if (!apiKey) {
-    throw new Error("Add your OpenAI API key in Skim options (extension settings).");
+  const config = await getAiConfig();
+  if (!config) {
+    throw new Error(missingApiKeyMessage());
   }
 
   const priorTurns =
@@ -177,7 +176,7 @@ async function answerFromSession(question, history, sess) {
 
   if (sess.shortPageMode) {
     const userContent = buildFullTextPayload(question, sess.fullText, priorTurns);
-    const json = await chatCompletionJson(apiKey, {
+    const json = await chatCompletionJsonForConfig(config, {
       messages: [
         { role: "system", content: SYSTEM_FULL_TEXT },
         { role: "user", content: userContent },
@@ -192,7 +191,7 @@ async function answerFromSession(question, history, sess) {
     throw new Error("Session is missing chunks. Capture the page again.");
   }
 
-  const qVec = await embedQuery(apiKey, question);
+  const qVec = await embedQueryForConfig(config, question);
   const ranked = topKByCosine(sess.embeddings, qVec, TOP_K).map(({ index, score }) => ({
     chunk: sess.chunks[index],
     score,
@@ -212,7 +211,7 @@ async function answerFromSession(question, history, sess) {
     priorTurns
   );
 
-  const completion = await chatCompletionJson(apiKey, {
+  const completion = await chatCompletionJsonForConfig(config, {
     messages: [
       { role: "system", content: SYSTEM_GROUNDED },
       { role: "user", content: userContent },
@@ -225,9 +224,9 @@ async function answerFromSession(question, history, sess) {
 }
 
 async function captureCurrentTab() {
-  const apiKey = await getApiKey();
-  if (!apiKey) {
-    throw new Error("Add your OpenAI API key in Skim options (extension settings).");
+  const config = await getAiConfig();
+  if (!config) {
+    throw new Error(missingApiKeyMessage());
   }
 
   const tabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
@@ -287,7 +286,7 @@ async function captureCurrentTab() {
 
   if (!shortPage) {
     sess.embeddings = await embedAllChunks(
-      apiKey,
+      config,
       chunks.map((c) => ({ id: c.id, text: c.text }))
     );
   }
