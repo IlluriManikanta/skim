@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "Skim",
+  "version": "0.1.0",
+  "description": "Goal-based reading assistant grounded in the current page only",
+  "permissions": ["storage", "activeTab", "sidePanel", "scripting"],
+  "host_permissions": ["https://api.openai.com/*", "<all_urls>"],
+  "background": {
+    "service_worker": "dist/background.js",
+    "type": "module"
+  },
+  "side_panel": {
+    "default_path": "dist/sidepanel.html"
+  },
+  "action": {
+    "default_title": "Open Skim"
+  },
+  "options_ui": {
+    "page": "dist/options.html",
+    "open_in_tab": true
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["dist/content.js"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["dist/pdfjs/pdf.worker.min.mjs"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Skim</title>
+    <link rel="stylesheet" href="sidepanel.css" />
+  </head>
+  <body>
+    <header class="header">
+      <h1>Skim</h1>
+      <p class="muted">
+        Answers use only the text captured from this tab when you click Capture — not the live web.
+      </p>
+    </header>
+
+    <section class="toolbar">
+      <button type="button" id="capture" class="btn primary">Capture this page</button>
+      <button type="button" id="newSession" class="btn">New session</button>
+      <label class="debug-label"><input type="checkbox" id="debugRetrieval" /> Show retrieval scores</label>
+      <a class="link" id="openOptions" href="#">API key settings</a>
+    </section>
+
+    <section id="sessionBar" class="session-bar hidden">
+      <span id="sessionTitle" class="session-title"></span>
+      <span id="sessionMeta" class="muted small"></span>
+    </section>
+
+    <section id="warnBox" class="warn hidden" role="status"></section>
+
+    <main id="thread" class="thread" aria-live="polite"></main>
+
+    <form id="askForm" class="ask-form">
+      <label for="question" class="sr-only">Your question</label>
+      <textarea
+        id="question"
+        name="question"
+        rows="3"
+        placeholder="Reading goal or follow-up question…"
+        required
+      ></textarea>
+      <div class="ask-actions">
+        <button type="submit" class="btn primary" id="submitAsk">Ask</button>
+      </div>
+    </form>
+
+    <script type="module" src="sidepanel.js"></script>
+  </body>
+</html>
