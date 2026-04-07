@@ -1,8 +1,12 @@
 # Skim
+Stop wasting time reading entire long articles or PDFs just to hunt for one specific detail.  
 
-Skim is a **source-grounded reading assistant** for your browser. You pick **one** webpage or **text-based PDF** in your active tab; it captures the readable text from that page only, then answers **reading goals** and **follow-up questions** using **only** that content — not the live web, not other tabs, and not open-ended chat.
+Skim is a Chrome extension (MV3) that captures the active tab's webpage or text PDF, then answers your **reading-focused questions** with citations scoped strictly to that captured page — not the live web.
 
-Long pages are split into chunks and embedded for retrieval; a chat model answers with **verbatim quotes** and citations. Short pages can skip retrieval and use the **full text** instead.
+Tell Skim exactly *why* you're reading the page (your goal), and it instantly returns only the relevant information that matters to you. No more skimming manually through walls of text.
+
+### Why Skim Exists
+I always hated having to read a full article just to find that one detail I needed. So I built Skim: a focused, source-grounded reading assistant that respects your time and your specific goal.
 
 ## Features
 
