@@ -23,6 +23,8 @@ The default pipeline **chunks** the page, **embeds** chunks once per session (Op
 
 The manifest requests **`host_permissions` for `<all_urls>`** so the extension can (a) inject the content script on normal `http(s)` pages and (b) **fetch PDF bytes** from the active tab’s URL when needed. Requests to **`https://api.openai.com/`** are for the API only.
 
+The **`tabs`** permission lets the extension read the active tab’s URL so it can **invalidate the in-memory session** when you navigate or switch tabs (keeping the UI aligned with the current page).
+
 ## Setup
 
 1. **Node.js 20+** recommended.

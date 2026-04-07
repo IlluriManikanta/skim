@@ -5,6 +5,7 @@ const sessionBar = document.getElementById("sessionBar");
 const sessionTitle = document.getElementById("sessionTitle");
 const sessionMeta = document.getElementById("sessionMeta");
 const warnBox = document.getElementById("warnBox");
+const emptyHint = document.getElementById("emptyHint");
 const thread = document.getElementById("thread");
 const askForm = document.getElementById("askForm");
 const questionEl = document.getElementById("question");
@@ -13,6 +14,12 @@ const debugRetrieval = document.getElementById("debugRetrieval");
 
 /** @type {{ role: 'user' | 'assistant'; content: string }[]} */
 let transcript = [];
+
+/** Tracks whether we had an active session (for clearing thread when it becomes stale). */
+let hadSession = false;
+
+/** @type {ReturnType<typeof setTimeout> | null} */
+let tabUpdateDebounce = null;
 
 function showWarn(msg) {
   warnBox.textContent = msg;
@@ -24,13 +31,28 @@ function clearWarn() {
   warnBox.classList.add("hidden");
 }
 
+function resetConversation() {
+  transcript = [];
+  thread.innerHTML = "";
+}
+
 async function refreshSession() {
   const res = await chrome.runtime.sendMessage({ type: "SKIM_SESSION_GET" });
   const s = res?.session;
+
   if (!s) {
     sessionBar.classList.add("hidden");
+    emptyHint?.classList.remove("hidden");
+    if (hadSession) {
+      resetConversation();
+      clearWarn();
+    }
+    hadSession = false;
     return;
   }
+
+  hadSession = true;
+  emptyHint?.classList.add("hidden");
   sessionBar.classList.remove("hidden");
   sessionTitle.textContent = s.title || s.url || "Captured page";
   const parts = [
@@ -42,8 +64,8 @@ async function refreshSession() {
   sessionMeta.textContent = parts.join(" · ");
 }
 
-function escapeHtml(s) {
-  return s
+function escapeHtml(str) {
+  return str
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
@@ -107,8 +129,7 @@ captureBtn?.addEventListener("click", async () => {
     } else {
       clearWarn();
     }
-    transcript = [];
-    thread.innerHTML = "";
+    resetConversation();
     await refreshSession();
   } catch (e) {
     showWarn(e instanceof Error ? e.message : String(e));
@@ -120,8 +141,7 @@ captureBtn?.addEventListener("click", async () => {
 newSessionBtn?.addEventListener("click", async () => {
   clearWarn();
   await chrome.runtime.sendMessage({ type: "SKIM_SESSION_CLEAR" });
-  transcript = [];
-  thread.innerHTML = "";
+  resetConversation();
   await refreshSession();
 });
 
@@ -148,20 +168,42 @@ askForm?.addEventListener("submit", async (e) => {
     });
     if (res?.error) {
       showWarn(res.error);
+      await refreshSession();
       return;
     }
     const result = res?.result;
     if (!result) {
       showWarn("No response.");
+      await refreshSession();
       return;
     }
     renderAssistantMessage(result);
     transcript.push({ role: "assistant", content: result.answer || "" });
   } catch (err) {
     showWarn(err instanceof Error ? err.message : String(err));
+    await refreshSession();
   } finally {
     submitAsk.disabled = false;
   }
 });
 
-refreshSession();
+chrome.tabs.onActivated.addListener(() => {
+  void refreshSession();
+});
+
+chrome.tabs.onUpdated.addListener((_tabId, changeInfo) => {
+  if (changeInfo.url === undefined && changeInfo.status !== "complete") return;
+  if (tabUpdateDebounce) clearTimeout(tabUpdateDebounce);
+  tabUpdateDebounce = setTimeout(() => {
+    tabUpdateDebounce = null;
+    void refreshSession();
+  }, 150);
+});
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    void refreshSession();
+  }
+});
+
+void refreshSession();

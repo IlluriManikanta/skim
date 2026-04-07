@@ -327,15 +327,62 @@ function clearSession() {
   session = null;
 }
 
+/**
+ * Normalize for comparison: drop hash (SPA in-page nav), trim non-root trailing slash.
+ * @param {string} url
+ */
+function normalizePageUrl(url) {
+  try {
+    const u = new URL(url);
+    u.hash = "";
+    if (u.pathname.length > 1 && u.pathname.endsWith("/")) {
+      u.pathname = u.pathname.slice(0, -1);
+    }
+    return u.href;
+  } catch {
+    return url;
+  }
+}
+
+function isUnsupportedTabUrl(url) {
+  if (!url) return true;
+  return (
+    url.startsWith("chrome://") ||
+    url.startsWith("edge://") ||
+    url.startsWith("about:") ||
+    url.startsWith("devtools:") ||
+    url.startsWith("chrome-extension://")
+  );
+}
+
+async function invalidateSessionIfStale() {
+  if (!session) return;
+
+  const tabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+  const tab = tabs[0];
+  const tabUrl = tab?.url;
+
+  if (isUnsupportedTabUrl(tabUrl || "") || !tabUrl) {
+    clearSession();
+    return;
+  }
+
+  if (normalizePageUrl(tabUrl) !== normalizePageUrl(session.url)) {
+    clearSession();
+  }
+}
+
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   (async () => {
     try {
       if (msg?.type === "SKIM_CAPTURE") {
+        await invalidateSessionIfStale();
         const out = await captureCurrentTab();
         sendResponse(out);
         return;
       }
       if (msg?.type === "SKIM_SESSION_GET") {
+        await invalidateSessionIfStale();
         sendResponse({ session: session ? summarizeSession(session) : null });
         return;
       }
@@ -345,6 +392,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
         return;
       }
       if (msg?.type === "SKIM_ASK") {
+        await invalidateSessionIfStale();
         if (!session) {
           sendResponse({ error: "No session. Capture a page first." });
           return;
