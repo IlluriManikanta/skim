@@ -1,0 +1,105 @@
+/* Skim shared tokens — soft editorial utility, light-first */
+:root {
+  color-scheme: light dark;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  --space-1: 6px;
+  --space-2: 10px;
+  --space-3: 14px;
+  --space-4: 18px;
+  --space-5: 24px;
+
+  /* Light (default) */
+  --bg: #f5f5f7;
+  --bg-elevated: #ffffff;
+  --surface: #ffffff;
+  --surface-muted: #f2f2f7;
+  --border: #d8d8dc;
+  --border-subtle: #e8e8ed;
+  --text: #1d1d1f;
+  --muted: #6e6e73;
+  --accent: #0077ed;
+  --accent-hover: #0066cc;
+  --on-accent: #ffffff;
+  --focus-ring: color-mix(in srgb, var(--accent) 35%, transparent);
+  --danger: #d70015;
+  --danger-bg: color-mix(in srgb, var(--danger) 10%, transparent);
+  --success: #1b7a3d;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1c1e;
+    --bg-elevated: #2c2c2e;
+    --surface: #2c2c2e;
+    --surface-muted: #3a3a3c;
+    --border: #48484a;
+    --border-subtle: #3a3a3c;
+    --text: #f5f5f7;
+    --muted: #a1a1a6;
+    --accent: #409cff;
+    --accent-hover: #5aacff;
+    --on-accent: #0b111a;
+    --focus-ring: color-mix(in srgb, var(--accent) 45%, transparent);
+    --danger: #ff6961;
+    --danger-bg: color-mix(in srgb, var(--danger) 14%, transparent);
+    --success: #5cdb7a;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Shared controls (options + panel) */
+.skim-ui button,
+.skim-ui .btn {
+  font-family: inherit;
+}
+
+.skim-ui input:not([type="checkbox"]):not([type="radio"]),
+.skim-ui select,
+.skim-ui textarea {
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+}
+
+.skim-ui input:not([type="checkbox"]):not([type="radio"]):focus,
+.skim-ui select:focus,
+.skim-ui textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.skim-ui code {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  background: var(--surface-muted);
+  color: var(--text);
+}

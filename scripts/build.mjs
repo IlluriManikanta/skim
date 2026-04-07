@@ -1,5 +1,5 @@
 import * as esbuild from "esbuild";
-import { copyFile, mkdir } from "fs/promises";
+import { copyFile, mkdir, readFile } from "fs/promises";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 
@@ -11,13 +11,31 @@ const pdfWorkerSrc = join(root, "node_modules/pdfjs-dist/legacy/build/pdf.worker
 
 const watch = process.argv.includes("--watch");
 
+/** Rasterize SVG logo to PNGs for manifest toolbar / store icons. */
+async function generateIcons() {
+  const sharp = (await import("sharp")).default;
+  const iconsDir = join(ext, "icons");
+  const svgPath = join(iconsDir, "skim-mark.svg");
+  const buf = await readFile(svgPath);
+  for (const size of [16, 32, 48, 128]) {
+    await sharp(buf).resize(size, size).png().toFile(join(iconsDir, `icon-${size}.png`));
+  }
+}
+
 async function copyStatic() {
   await mkdir(dist, { recursive: true });
   await mkdir(join(dist, "pdfjs"), { recursive: true });
+  await mkdir(join(dist, "icons"), { recursive: true });
   await copyFile(join(ext, "sidepanel.html"), join(dist, "sidepanel.html"));
   await copyFile(join(ext, "sidepanel.css"), join(dist, "sidepanel.css"));
+  await copyFile(join(ext, "skim-ui.css"), join(dist, "skim-ui.css"));
+  await copyFile(join(ext, "options.css"), join(dist, "options.css"));
   await copyFile(join(ext, "options.html"), join(dist, "options.html"));
   await copyFile(pdfWorkerSrc, join(dist, "pdfjs", "pdf.worker.min.mjs"));
+  for (const size of [16, 32, 48, 128]) {
+    await copyFile(join(ext, "icons", `icon-${size}.png`), join(dist, "icons", `icon-${size}.png`));
+  }
+  await copyFile(join(ext, "icons", "skim-mark.svg"), join(dist, "icons", "skim-mark.svg"));
 }
 
 const common = {
@@ -29,6 +47,7 @@ const common = {
 };
 
 async function build() {
+  await generateIcons();
   await copyStatic();
 
   const ctxSw = await esbuild.context({

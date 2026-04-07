@@ -56,9 +56,9 @@ async function refreshSession() {
   sessionBar.classList.remove("hidden");
   sessionTitle.textContent = s.title || s.url || "Captured page";
   const parts = [
-    `${s.chunkCount} chunks`,
-    s.shortPageMode ? "short page (full context)" : "retrieval mode",
-    s.sourceType === "pdf" ? "PDF" : "HTML",
+    `${s.chunkCount} passages indexed`,
+    s.shortPageMode ? "Full page in context" : "Snippets by relevance",
+    s.sourceType === "pdf" ? "PDF" : "Web page",
   ];
   if (s.pdfMeta?.pageCount) parts.push(`~${s.pdfMeta.pageCount} pdf pages`);
   sessionMeta.textContent = parts.join(" · ");
@@ -89,7 +89,7 @@ function renderAssistantMessage(result) {
     html += `<p class="muted small">${escapeHtml(notFound)}</p>`;
   }
   if (citations.length) {
-    html += `<div class="citations"><h3>Supporting quotes</h3>`;
+    html += `<div class="citations"><h3>Quotes from this page</h3>`;
     for (const c of citations) {
       const n = c.n ?? "?";
       const q = c.quote || "";

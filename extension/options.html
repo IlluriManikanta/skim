@@ -3,105 +3,53 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Skim — settings</title>
-    <style>
-      :root {
-        font-family: system-ui, sans-serif;
-        color-scheme: light dark;
-      }
-      body {
-        max-width: 640px;
-        margin: 40px auto;
-        padding: 0 16px;
-        line-height: 1.5;
-      }
-      label {
-        display: block;
-        font-weight: 600;
-        margin-bottom: 8px;
-      }
-      fieldset {
-        border: 1px solid #dadce0;
-        border-radius: 8px;
-        padding: 16px;
-        margin: 16px 0;
-      }
-      legend {
-        font-weight: 600;
-        padding: 0 8px;
-      }
-      input[type="password"],
-      input[type="text"],
-      select {
-        width: 100%;
-        padding: 10px;
-        font: inherit;
-        box-sizing: border-box;
-      }
-      button {
-        margin-top: 12px;
-        margin-right: 8px;
-        padding: 10px 16px;
-        font: inherit;
-        cursor: pointer;
-      }
-      .note {
-        color: #5f6368;
-        font-size: 14px;
-        margin-top: 8px;
-      }
-      .ok {
-        color: #137333;
-        margin-top: 8px;
-      }
-      .hidden {
-        display: none;
-      }
-    </style>
+    <title>Skim — Settings</title>
+    <link rel="stylesheet" href="skim-ui.css" />
+    <link rel="stylesheet" href="options.css" />
   </head>
-  <body>
-    <h1>Skim settings</h1>
-    <p>
-      API keys are stored only in this browser via <code>chrome.storage.local</code>. Requests go directly to the
-      provider you choose — there is no Skim backend.
+  <body class="skim-ui options-page">
+    <h1>Settings</h1>
+    <p class="options-lead">
+      Keys stay in this browser only (<code>chrome.storage.local</code>). Requests go straight to the provider you pick — there is no Skim server.
     </p>
-    <form id="form">
-      <label for="provider">AI provider</label>
-      <select id="provider" name="provider" autocomplete="off">
-        <option value="openai">OpenAI</option>
-        <option value="gemini">Google Gemini</option>
-      </select>
+    <form id="form" class="options-form">
+      <div class="field">
+        <label class="field-label" for="provider">AI provider</label>
+        <select id="provider" name="provider" autocomplete="off">
+          <option value="openai">OpenAI</option>
+          <option value="gemini">Google Gemini</option>
+        </select>
+      </div>
 
       <fieldset id="openaiSection">
         <legend>OpenAI</legend>
-        <label for="openaiKey">OpenAI API key</label>
+        <label class="field-label" for="openaiKey">API key</label>
         <input id="openaiKey" name="openaiKey" type="password" autocomplete="off" placeholder="sk-…" />
-        <label for="openaiEmbedding">Embedding model</label>
+        <label class="field-label" for="openaiEmbedding">Embedding model</label>
         <input id="openaiEmbedding" name="openaiEmbedding" type="text" autocomplete="off" />
-        <label for="openaiChat">Chat model</label>
+        <label class="field-label" for="openaiChat">Chat model</label>
         <input id="openaiChat" name="openaiChat" type="text" autocomplete="off" />
       </fieldset>
 
       <fieldset id="geminiSection" class="hidden">
         <legend>Gemini</legend>
-        <label for="geminiKey">Gemini API key</label>
-        <input id="geminiKey" name="geminiKey" type="password" autocomplete="off" placeholder="API key from Google AI Studio" />
-        <label for="geminiEmbedding">Embedding model</label>
+        <label class="field-label" for="geminiKey">API key</label>
+        <input id="geminiKey" name="geminiKey" type="password" autocomplete="off" placeholder="From Google AI Studio" />
+        <label class="field-label" for="geminiEmbedding">Embedding model</label>
         <input id="geminiEmbedding" name="geminiEmbedding" type="text" autocomplete="off" />
-        <label for="geminiChat">Chat model</label>
+        <label class="field-label" for="geminiChat">Chat model</label>
         <input id="geminiChat" name="geminiChat" type="text" autocomplete="off" />
       </fieldset>
 
-      <button type="submit">Save</button>
-      <p id="status" class="ok" hidden>Saved.</p>
+      <div class="form-actions">
+        <button type="submit" class="btn-submit">Save</button>
+        <p id="status" class="status-ok" role="status" hidden>Saved.</p>
+      </div>
     </form>
     <p class="note">
-      Leave a provider’s API key blank and save to remove the stored key for that provider. If you change the
-      provider or embedding model, use <strong>Capture this page</strong> again so retrieval uses the new embeddings.
+      To remove a key, clear the field and save. If you change provider or embedding model, run <strong>Capture this page</strong> again so passages match the new setup.
     </p>
-    <p class="note">
-      Use keys with access to chat and embeddings for your chosen provider. See the README for privacy notes.
-    </p>
+    <p class="note">Your key needs chat and embedding access for the provider you use. See the README for privacy details.</p>
     <script type="module" src="options.js"></script>
   </body>
 </html>

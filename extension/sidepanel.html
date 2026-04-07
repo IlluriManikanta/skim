@@ -4,21 +4,46 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Skim</title>
+    <link rel="stylesheet" href="skim-ui.css" />
     <link rel="stylesheet" href="sidepanel.css" />
   </head>
-  <body>
+  <body class="skim-ui">
     <header class="header">
-      <h1>Skim</h1>
-      <p class="muted">
-        Answers use only the text captured from this tab when you click Capture — not the live web.
-      </p>
+      <div class="header-brand">
+        <span class="header-logo" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none">
+            <rect width="24" height="24" rx="6" fill="url(#skimGrad)" />
+            <path
+              fill="#fff"
+              fill-opacity="0.95"
+              d="M7 8.5h10v1.4H7zm0 3.2h7v1.4H7zm0 3.2h9v1.4H7z"
+            />
+            <defs>
+              <linearGradient id="skimGrad" x1="4" y1="3" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#0A84FF" />
+                <stop offset="1" stop-color="#0058D0" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </span>
+        <div class="header-text">
+          <h1>Skim</h1>
+          <p class="muted header-tagline">
+            Answers come only from text you capture here — not from the live web.
+          </p>
+        </div>
+      </div>
     </header>
 
-    <section class="toolbar">
-      <button type="button" id="capture" class="btn primary">Capture this page</button>
-      <button type="button" id="newSession" class="btn">New session</button>
-      <label class="debug-label"><input type="checkbox" id="debugRetrieval" /> Show retrieval scores</label>
-      <a class="link" id="openOptions" href="#">API key settings</a>
+    <section class="toolbar" aria-label="Page actions">
+      <div class="toolbar-primary">
+        <button type="button" id="capture" class="btn primary">Capture this page</button>
+        <button type="button" id="newSession" class="btn secondary">New session</button>
+      </div>
+      <div class="toolbar-secondary">
+        <label class="debug-label"><input type="checkbox" id="debugRetrieval" /> Show retrieval scores</label>
+        <a class="link tertiary" id="openOptions" href="#">Settings</a>
+      </div>
     </section>
 
     <section id="sessionBar" class="session-bar hidden">
@@ -29,7 +54,7 @@
     <section id="warnBox" class="warn hidden" role="status"></section>
 
     <p id="emptyHint" class="empty-hint hidden">
-      No capture for this tab — click <strong>Capture this page</strong> to read against it.
+      Nothing captured for this tab yet. Use <strong>Capture this page</strong> to ground your questions in what you’re reading.
     </p>
 
     <main id="thread" class="thread" aria-live="polite"></main>
@@ -40,7 +65,7 @@
         id="question"
         name="question"
         rows="3"
-        placeholder="Reading goal or follow-up question…"
+        placeholder="Ask a question about this page…"
         required
       ></textarea>
       <div class="ask-actions">

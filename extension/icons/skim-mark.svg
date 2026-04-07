@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="skimMarkGrad" x1="20" y1="16" x2="116" y2="112" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0A84FF" />
+      <stop offset="1" stop-color="#0058D0" />
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#skimMarkGrad)" />
+  <path fill="#ffffff" fill-opacity="0.95" d="M38 44h52v8H38zm0 18h36v8H38zm0 18h46v8H38z" />
+</svg>
